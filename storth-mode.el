@@ -12,6 +12,14 @@
   '((t :inherit font-lock-preprocessor-face :weight bold))
   "Face for Storth directives.")
 
+(defface storth-type-face
+  '((t :inherit font-lock-type-face))
+  "Face for built-in type names.")
+
+(defface storth-function-name-face
+  '((t :inherit font-lock-function-name-face))
+  "Face for function names.")
+
 (defconst storth-keywords
   '("fn" "return" "if" "else" "while" "do" "for" "in"
     "defer" "break" "continue"
@@ -26,6 +34,14 @@
     "#if" "#else" "#end")
   "Storth directives.")
 
+(defconst storth-types
+  '("i8" "i16" "i32" "i64"
+    "u8" "u16" "u32" "u64"
+    "f32" "f64" "f128"
+    "bool" "char" "string" "void" "any"
+    "va_list")
+  "Storth built-in type names.")
+
 (defvar storth-mode-syntax-table
   (let ((st (make-syntax-table)))
     (modify-syntax-entry ?/ ". 124b" st)
@@ -39,15 +55,22 @@
   "Syntax table for `storth-mode'.")
 
 (defconst storth-font-lock-keywords
-  (let ((kw-re  (regexp-opt storth-keywords  'words))
-        (dir-re (regexp-opt storth-directives 'words)))
+  (let ((kw-re   (regexp-opt storth-keywords 'words))
+        (dir-re  (regexp-opt storth-directives 'words))
+        (type-re (regexp-opt storth-types 'words)))
     `(
       (,dir-re . 'storth-directive-face)
-      (,kw-re  . 'storth-keyword-face)
+      ("\\bfn\\s-+\\([A-Za-z_][A-Za-z0-9_]*\\)"
+       (1 'storth-function-name-face))
+      (,type-re . 'storth-type-face)
+      ("\\*+\\(?:i8\\|i16\\|i32\\|i64\\|u8\\|u16\\|u32\\|u64\\|f32\\|f64\\|f128\\|bool\\|char\\|string\\|void\\|any\\|va_list\\)\\b"
+       (0 'storth-type-face))
+      (,kw-re . 'storth-keyword-face)
     ))
   "Font-lock keywords for `storth-mode'.
-Only keywords and directives are highlighted here; strings and
-comments are fontified automatically via the syntax table.")
+Highlights keywords, directives, function names, and built-in
+types; strings and comments are fontified automatically via the
+syntax table.")
 
 (defcustom storth-indent-offset 4
   "Number of spaces per indentation level in Storth."
@@ -62,35 +85,17 @@ comments are fontified automatically via the syntax table.")
 
 (defun storth--calculate-indent ()
   "Return the column the current line should be indented to.
-Implements K&R style: opening braces on their own line increase the
-next line's indent; closing braces align with the matching open level."
+Depth is the current brace nesting level, taken from
+`syntax-ppss' (which walks the syntax table, so strings and
+both line and block comments are skipped automatically). A
+line starting with `{' or `}' is dedented one level to sit
+flush with its matching brace."
   (save-excursion
-    (beginning-of-line)
-    (let ((cur-line-start (point))
-          (depth 0))
-      (goto-char (point-min))
-      (while (< (point) cur-line-start)
-        (let ((ch (char-after)))
-          (cond
-           ((eq ch ?{)
-            (setq depth (1+ depth)))
-           ((eq ch ?})
-            (setq depth (max 0 (1- depth))))
-           ((eq ch ?\")
-            (condition-case nil
-                (progn (forward-sexp 1) (backward-char 1))
-              (error nil)))
-           ((and (eq ch ?/)
-                 (eq (char-after (1+ (point))) ?/))
-            (end-of-line))))
-        (forward-char 1))
-      (goto-char cur-line-start)
-      (back-to-indentation)
-      (let ((first-ch (char-after)))
-        (when (eq first-ch ?})
-          (setq depth (max 0 (1- depth))))
-        (when (eq first-ch ?{)
-          (setq depth (max 0 (1- depth)))))
+    (back-to-indentation)
+    (let ((depth (car (syntax-ppss (point))))
+          (first-ch (char-after)))
+      (when (memq first-ch '(?\{ ?\}))
+        (setq depth (1- depth)))
       (* storth-indent-offset (max 0 depth)))))
 
 (defun storth-indent-line ()
