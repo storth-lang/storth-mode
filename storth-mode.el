@@ -77,25 +77,37 @@ syntax table.")
   :type 'integer
   :group 'storth)
 
-(defun storth--current-line-string ()
-  "Return the text of the current line stripped of leading whitespace."
-  (save-excursion
-    (back-to-indentation)
-    (buffer-substring-no-properties (point) (line-end-position))))
-
 (defun storth--calculate-indent ()
   "Return the column the current line should be indented to.
-Depth is the current brace nesting level, taken from
-`syntax-ppss' (which walks the syntax table, so strings and
-both line and block comments are skipped automatically). A
-line starting with `{' or `}' is dedented one level to sit
-flush with its matching brace."
+Implements K&R style: opening braces on their own line increase the
+next line's indent; closing braces align with the matching open level."
   (save-excursion
-    (back-to-indentation)
-    (let ((depth (car (syntax-ppss (point))))
-          (first-ch (char-after)))
-      (when (memq first-ch '(?\{ ?\}))
-        (setq depth (1- depth)))
+    (beginning-of-line)
+    (let ((cur-line-start (point))
+          (depth 0))
+      (goto-char (point-min))
+      (while (< (point) cur-line-start)
+        (let ((ch (char-after)))
+          (cond
+           ((eq ch ?{)
+            (setq depth (1+ depth)))
+           ((eq ch ?})
+            (setq depth (max 0 (1- depth))))
+           ((eq ch ?\")
+            (condition-case nil
+                (progn (forward-sexp 1) (backward-char 1))
+              (error nil)))
+           ((and (eq ch ?/)
+                 (eq (char-after (1+ (point))) ?/))
+            (end-of-line))))
+        (forward-char 1))
+      (goto-char cur-line-start)
+      (back-to-indentation)
+      (let ((first-ch (char-after)))
+        (when (eq first-ch ?})
+          (setq depth (max 0 (1- depth))))
+        (when (eq first-ch ?{)
+          (setq depth (max 0 (1- depth)))))
       (* storth-indent-offset (max 0 depth)))))
 
 (defun storth-indent-line ()
