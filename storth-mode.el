@@ -9,7 +9,7 @@
   "Face for Storth keywords.")
 
 (defface storth-directive-face
-  '((t :inherit font-lock-preprocessor-face :weight bold))
+  '((t :inherit font-lock-type-face))
   "Face for Storth directives.")
 
 (defface storth-type-face
@@ -25,13 +25,13 @@
     "defer" "break" "continue"
     "struct" "enum" "pub" "extern" "using"
     "null" "true" "false"
-    "sizeof" "typeof" "cstr")
+    "sizeof" "typeof" "case" "goto" "label")
   "Storth keywords.")
 
 (defconst storth-directives
   '("#import" "#load" "#template" "#static" "#as" "#fields"
     "#comptime" "#comptime_load" "#link" "#target"
-    "#if" "#else" "#end")
+    "#if" "#else" "#end" "#asm")
   "Storth directives.")
 
 (defconst storth-types
@@ -59,7 +59,7 @@
         (dir-re  (regexp-opt storth-directives 'words))
         (type-re (regexp-opt storth-types 'words)))
     `(
-      (,dir-re . 'storth-directive-face)
+      (,dir-re . 'storth-directives-face)
       ("\\bfn\\s-+\\([A-Za-z_][A-Za-z0-9_]*\\)"
        (1 'storth-function-name-face))
       (,type-re . 'storth-type-face)
