@@ -21,11 +21,11 @@
   "Face for function names.")
 
 (defconst storth-keywords
-  '("fn" "return" "if" "else" "while" "do" "for" "in"
+  '("fn" "return" "if" "else" "while" "do" "for"
     "defer" "break" "continue"
     "struct" "enum" "pub" "extern" "using"
     "null" "true" "false"
-    "sizeof" "typeof" "case" "goto" "label")
+    "sizeof" "type_of" "case" "goto" "label" "default")
   "Storth keywords.")
 
 (defconst storth-directives
@@ -37,7 +37,7 @@
 (defconst storth-types
   '("i8" "i16" "i32" "i64"
     "u8" "u16" "u32" "u64"
-    "f32" "f64" "f128"
+    "f32" "f64"
     "bool" "char" "string" "void" "any"
     "va_list")
   "Storth built-in type names.")
