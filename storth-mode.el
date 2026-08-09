@@ -9,8 +9,8 @@
   "Face for Storth keywords.")
 
 (defface storth-directive-face
-  '((t :inherit font-lock-type-face))
-  "Face for Storth directives.")
+  '((t :inherit storth-type-face))
+  "Face for Storth directives (matches storth-type-face by default).")
 
 (defface storth-type-face
   '((t :inherit font-lock-type-face))
@@ -57,10 +57,9 @@
 
 (defconst storth-font-lock-keywords
   (let ((kw-re   (regexp-opt storth-keywords 'words))
-        (dir-re  (regexp-opt storth-directives 'words))
         (type-re (regexp-opt storth-types 'words)))
     `(
-      (,dir-re . 'storth-directive-face)
+      ("#[A-Za-z_][A-Za-z0-9_]*" . 'storth-type-face)
       ("\\bfn\\s-+\\([A-Za-z_][A-Za-z0-9_]*\\)"
        (1 'storth-function-name-face))
       (,type-re . 'storth-type-face)
