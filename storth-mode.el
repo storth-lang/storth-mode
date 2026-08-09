@@ -21,17 +21,18 @@
   "Face for function names.")
 
 (defconst storth-keywords
-  '("fn" "return" "if" "else" "while" "do" "for"
+  '("fn" "return" "if" "else" "then" "while" "do" "for"
     "defer" "break" "continue"
     "struct" "enum" "pub" "extern" "using"
     "null" "true" "false"
-    "sizeof" "type_of" "case" "goto" "label" "default")
+    "sizeof" "type_of" "kind" "cstr" "case" "goto" "label" "default")
   "Storth keywords.")
 
 (defconst storth-directives
   '("#import" "#load" "#template" "#static" "#as" "#fields"
     "#comptime" "#comptime_load" "#link" "#target"
-    "#if" "#else" "#end" "#asm")
+    "#if" "#else" "#for" "#case" "#default" "#comp_error"
+    "#end" "#asm")
   "Storth directives.")
 
 (defconst storth-types
@@ -59,7 +60,7 @@
         (dir-re  (regexp-opt storth-directives 'words))
         (type-re (regexp-opt storth-types 'words)))
     `(
-      (,dir-re . 'storth-directives-face)
+      (,dir-re . 'storth-directive-face)
       ("\\bfn\\s-+\\([A-Za-z_][A-Za-z0-9_]*\\)"
        (1 'storth-function-name-face))
       (,type-re . 'storth-type-face)
