@@ -22,7 +22,7 @@
 
 (defconst storth-keywords
   '("fn" "return" "if" "else" "then" "while" "do" "for"
-    "defer" "break" "continue" "static"
+    "defer" "break" "continue" "static" "tag_union"
     "struct" "enum" "pub" "extern" "using"
     "null" "true" "false" "enum_flag"
     "sizeof" "type_of" "kind" "case" "goto" "label" "default")
