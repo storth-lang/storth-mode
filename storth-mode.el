@@ -21,9 +21,9 @@
   "Face for function names.")
 
 (defconst storth-keywords
-  '("fn" "return" "if" "else" "then" "while" "do" "for"
+  '("fn" "return" "if" "else" "then" "while" "for"
     "defer" "break" "continue" "static" "tag_union"
-    "struct" "enum" "pub" "extern" "using"
+    "struct" "enum" "pub" "extern" "using" "trait"
     "null" "true" "false" "enum_flag" "type_info" "noreturn" "cast"
     "sizeof" "type_of" "kind" "case" "goto" "label" "default")
   "Storth keywords.")
